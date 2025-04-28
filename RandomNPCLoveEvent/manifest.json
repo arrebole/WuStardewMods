@@ -1,0 +1,10 @@
+{
+    "Name": "RandomNPCLoveEvent",
+    "Author": "xiaowu",
+    "Version": "1.0.0",
+    "Description": "随机NPC触发事件的好感度要求",
+    "UniqueID": "WuStardewMods.RandomNPCLoveEvent",
+    "EntryDll": "RandomNPCLoveEvent.dll",
+    "MinimumApiVersion": "4.0.0",
+    "UpdateKeys": []
+}
