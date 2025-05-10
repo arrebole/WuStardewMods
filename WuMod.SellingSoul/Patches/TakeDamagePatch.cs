@@ -12,8 +12,8 @@ namespace WuMod.SellingSoul
                 return;
             }
 
-            // 没有装备 或是没有足够的钱触发效果
-            if (!HasDevilDeal(farmer) || farmer.Money < damage) {
+            // 游戏暂停状态 没有装备 或是没有足够的钱 无法触发效果
+            if (Game1.isTimePaused || !HasDevilDeal(farmer) || farmer.Money < damage) {
                 return;
             }
             
