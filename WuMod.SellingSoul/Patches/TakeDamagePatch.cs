@@ -6,28 +6,38 @@ namespace WuMod.SellingSoul
     [HarmonyPatch(typeof(Farmer), nameof(Farmer.takeDamage))]
     public static class TakeDamagePatch
     {
-        public static void Prefix(ref int damage, Farmer farmer)
+        public static void Prefix(Farmer __instance, ref int damage)
         {
-            if (farmer == null) {
+            if (__instance == null || Game1.isTimePaused) {
                 return;
             }
 
-            // 游戏暂停状态 没有装备 或是没有足够的钱 无法触发效果
-            if (Game1.isTimePaused || !HasDevilDeal(farmer) || farmer.Money < damage) {
+            // 没有装备无法触发效果
+            if (!HasDevilDeal(__instance) || __instance.Money <= 0) {
                 return;
             }
-            
+
             // 随机一个抵挡的伤害
-            int value = new Random().Next(1, damage);
+            var value = new Random().Next(0, damage);
 
             // 消耗金币
-            farmer.Money -= value;
+            var deduct = Math.Max(1, value * 2);
+            if (__instance.Money - deduct <= 0) {
+                deduct = __instance.Money;
+                __instance.Money = 0;
+            } else {
+                __instance.Money -= deduct;
+            }
+
             // 抵挡伤害
             damage -= value;
 
             // 显示效果信息
             Game1.addHUDMessage(
-                new HUDMessage($"与恶魔交易抵挡了 {value} 伤害", 2)
+                new HUDMessage(
+                    $"与魔鬼交易 ${deduct} 抵挡了 {value} 伤害", 
+                    2
+                )
             );
         }
 
@@ -42,7 +52,7 @@ namespace WuMod.SellingSoul
             };
             foreach (var ring in rings)
             {
-                if (ring != null && ring.Name == "Devil Deal") {
+                if (ring != null && ring.Value.Name == "Devil Deal") {
                     return true;
                 }
             }
