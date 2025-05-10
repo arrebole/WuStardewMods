@@ -1,0 +1,13 @@
+{
+    "Name": "SellingSoul",
+    "Author": "xiaowu",
+    "Version": "0.0.1",
+    "Description": "<无模组> 出卖灵魂模组",
+    "UniqueID": "WuMod.SellingSoul.JA",
+    "MinimumApiVersion": "4.0.0",
+    "ContentPackFor":
+    {
+        "UniqueID": "spacechase0.JsonAssets"
+    },
+    "UpdateKeys": []
+}

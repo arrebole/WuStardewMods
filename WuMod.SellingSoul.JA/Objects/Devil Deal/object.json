@@ -1,0 +1,17 @@
+{
+    "Name": "Devil Deal",
+    "Description": "There is a chance to use gold coins to resist damage",
+    "Category": "Accessory",
+    "Edibility": 0,
+    "Price": 99999,
+    "IsColored": false,
+    "Recipe": null,
+    "NameLocalization":
+    {
+        "zh": "魔鬼的交易"
+    },
+    "DescriptionLocalization":
+    {
+        "zh": "有钱能使鬼推磨，有一定几率消耗金币抵挡伤害"
+    }
+} 
