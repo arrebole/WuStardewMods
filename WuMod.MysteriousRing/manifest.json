@@ -1,0 +1,10 @@
+{
+    "Name": "[WuMod] MysteriousRing",
+    "Author": "xiaowu",
+    "Version": "0.0.1",
+    "Description": "<无模组|神秘戒指>",
+    "UniqueID": "WuMod.MysteriousRing",
+    "MinimumApiVersion": "4.0.0",
+    "EntryDll": "WuMod.MysteriousRing.dll",
+    "UpdateKeys": []
+}
