@@ -1,0 +1,13 @@
+{
+    "Name": "[WuMod] MysteriousRingJA",
+    "Author": "xiaowu",
+    "Version": "0.0.1",
+    "Description": "<无模组> 神秘戒指",
+    "UniqueID": "WuMod.MysteriousRing.JA",
+    "MinimumApiVersion": "4.0.0",
+    "ContentPackFor":
+    {
+        "UniqueID": "spacechase0.JsonAssets"
+    },
+    "UpdateKeys": []
+}

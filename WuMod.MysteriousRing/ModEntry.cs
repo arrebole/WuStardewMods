@@ -21,19 +21,21 @@ namespace MysteriousRing
         // 召唤物伙伴
         private RingServantCompanion? companion;
 
+        // 漂浮物实例
+
         public override void Entry(IModHelper helper)
         {
-            helper.Events.Player.InventoryChanged += OnInventoryChanged;
+            helper.Events.GameLoop.OneSecondUpdateTicked += CheckRingChanges;
             // 应用 Patches 目录下的补丁
             // new Harmony(ModManifest.UniqueID).PatchAll();
         }
 
-        private void OnInventoryChanged(object? sender, InventoryChangedEventArgs e) {
+        private void CheckRingChanges(object? sender, EventArgs e) {
             if (!Context.IsWorldReady) return;
 
             if (PlayerHasRing())
             {
-                if (companion == null)
+                if (companion == null && !Game1.currentLocation.characters.Contains(companion))
                 {
                     companion = RingServantCompanion.build(
                         Helper,
@@ -63,10 +65,8 @@ namespace MysteriousRing
             foreach (var ring in rings)
             {
                 if (ring == null || ring.Value == null) {
-                    Monitor.Log($"### null", LogLevel.Info);
                     continue;
                 }
-                Monitor.Log($"### {ring.Value.Name}", LogLevel.Info);
                 if (ring.Value.Name == "Chaos Treasure Ring") {
                     return true;
                 }

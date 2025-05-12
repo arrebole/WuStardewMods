@@ -1,0 +1,21 @@
+{
+    "Name": "[WuMod] MysteriousRingCP",
+    "Author": "xiaowu",
+    "Version": "0.0.1",
+    "Description": "<无模组> 神秘戒指",
+    "UniqueID": "WuMod.MysteriousRing.CP",
+    "MinimumApiVersion": "4.0.0",
+    "Dependencies": [
+        {
+            "UniqueID": "PeacefulEnd.CustomCompanions",
+            "IsRequired": true
+        },
+        {
+            "UniqueID": "spacechase0.JsonAssets",
+            "IsRequired": false
+        }
+    ],
+    "ContentPackFor": {
+        "UniqueID": "PeacefulEnd.CustomCompanions"
+    }
+}

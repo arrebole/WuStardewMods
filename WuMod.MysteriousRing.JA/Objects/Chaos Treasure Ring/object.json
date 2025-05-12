@@ -1,0 +1,20 @@
+{
+    "Name": "Chaos Treasure Ring",
+    "Description": "Steal weapons from the dragon's treasure chest every day to help you fight",
+    "Category": "Ring",
+    "Edibility": 0,
+    "Price": 1,
+    "CanSell": false,
+    "IsColored": false,
+    "Recipe": null,
+    "CanPurchase": false,
+    "PurchaseFrom": "Pierre",
+    "PurchasePrice": 2000,
+    "PurchaseRequirements": [],
+    "NameLocalization": {
+        "zh": "不稳定宝藏戒指"
+    },
+    "DescriptionLocalization": {
+        "zh": "每天从龙的宝藏库偷取武器，帮您战斗"
+    }
+} 

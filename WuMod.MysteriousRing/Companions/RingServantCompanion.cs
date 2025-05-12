@@ -3,6 +3,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Netcode;
 using StardewModdingAPI;
 using StardewValley;
 
@@ -15,7 +16,10 @@ namespace Companions
         private readonly int followDistance = 100;
         private readonly int attackRange = 192;
 
-        public static RingServantCompanion build(IModHelper helper, Farmer owner) {
+        private readonly int speed = 6;
+
+        public static RingServantCompanion build(IModHelper helper, Farmer owner)
+        {
             Texture2D texture = helper.ModContent.Load<Texture2D>(
                 "assets/ringServantCompanion.png"
             );
@@ -25,7 +29,8 @@ namespace Companions
                 currentFrame: 0,       // 固定0帧
                 spriteWidth: texture.Width,  // 图片宽度=单帧宽度
                 spriteHeight: texture.Height // 图片高度=单帧高度
-            ) {
+            )
+            {
                 spriteTexture = texture // 直接赋值纹理
             };
 
@@ -34,20 +39,28 @@ namespace Companions
 
         private RingServantCompanion(AnimatedSprite sprite, Farmer owner, string name)
             : base(
-                sprite, 
+                sprite,
                 owner.Tile * 64f,
-                null,
-                2,
-                name,
-                false, 
-                sprite.Texture
+                0,
+                "CustomCompanion"
             )
         {
             this.owner = owner;
             this.HideShadow = true;
-            this.speed = 3;
             this.willDestroyObjectsUnderfoot = false;
             this.collidesWithOtherCharacters.Value = false;
+            this.Portrait = null;
+            this.SimpleNonVillagerNPC = true;
+            // this.CanSocialize = false;
+            // this.hideFromAnimalSocialMenu = true;
+        }
+
+        public override bool CanSocialize
+        {
+            get
+            {
+                return false;
+            }
         }
 
         public override void update(GameTime time, GameLocation location)
