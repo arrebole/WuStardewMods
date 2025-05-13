@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EnableHarmony>true</EnableHarmony>
+    <GamePath>C:\Users\Jack\Desktop\Stardew Valley</GamePath>
   </PropertyGroup>
 
   <ItemGroup>

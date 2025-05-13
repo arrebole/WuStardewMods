@@ -1,9 +1,0 @@
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\obj\Debug\net6.0\WuMod.MysteriousRing.csproj.AssemblyReference.cache
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\obj\Debug\net6.0\WuMod.MysteriousRing.GeneratedMSBuildEditorConfig.editorconfig
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\obj\Debug\net6.0\WuMod.MysteriousRing.AssemblyInfoInputs.cache
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\obj\Debug\net6.0\WuMod.MysteriousRing.AssemblyInfo.cs
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\obj\Debug\net6.0\WuMod.MysteriousRing.csproj.CoreCompileInputs.cache
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\obj\Debug\net6.0\WuMod.MysteriousRing.sourcelink.json
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\bin\Debug\net6.0\WuMod.MysteriousRing.deps.json
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\bin\Debug\net6.0\WuMod.MysteriousRing.dll
-E:\Repository\github.com\arrebole\WuStardewMods\WuMod.MysteriousRing\obj\Debug\net6.0\WuMod.MysteriousRing.dll

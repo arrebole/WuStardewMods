@@ -6,21 +6,22 @@ using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Objects;
 
-namespace Companions
+namespace MysteriousRing.Companions
 {
-    public class RingServantCompanion : NPC
+    public class RingServant : NPC
     {
         private Farmer owner;
         private int attackCooldown = 0;
-        private readonly int followDistance = 100;
+        private int followDistance = 100;
         private readonly int attackRange = 192;
 
         private readonly int speed = 6;
 
-        public static RingServantCompanion build(IModHelper helper, Farmer owner)
+        public static RingServant build(Farmer owner, Ring ring)
         {
-            Texture2D texture = helper.ModContent.Load<Texture2D>(
+            Texture2D texture = ModEntry.ModHelper.ModContent.Load<Texture2D>(
                 "assets/ringServantCompanion.png"
             );
             // 创建AnimatedSprite（单帧）
@@ -34,10 +35,10 @@ namespace Companions
                 spriteTexture = texture // 直接赋值纹理
             };
 
-            return new RingServantCompanion(sprite, owner, "Ring Servant Companion");
+            return new RingServant(sprite, owner, "Ring Servant Companion");
         }
 
-        private RingServantCompanion(AnimatedSprite sprite, Farmer owner, string name)
+        private RingServant(AnimatedSprite sprite, Farmer owner, string name)
             : base(
                 sprite,
                 owner.Tile * 64f,
@@ -49,10 +50,8 @@ namespace Companions
             this.HideShadow = true;
             this.willDestroyObjectsUnderfoot = false;
             this.collidesWithOtherCharacters.Value = false;
-            this.Portrait = null;
             this.SimpleNonVillagerNPC = true;
-            // this.CanSocialize = false;
-            // this.hideFromAnimalSocialMenu = true;
+            this.Portrait = null;
         }
 
         public override bool CanSocialize
@@ -63,19 +62,30 @@ namespace Companions
             }
         }
 
+        public override bool checkAction(Farmer who, GameLocation l)
+        {
+            ModEntry.ModLogger.Log("checkAction");
+            return false;
+        }
+
         public override void update(GameTime time, GameLocation location)
         {
             base.update(time, location);
 
-            // 跟随玩家
-            // 计算与玩家的距离
+            // 计算与玩家的距离, 随机一个范围的跟随激励
             Vector2 targetPosition = owner.Position + new Vector2(0, -followDistance);
             Vector2 direction = targetPosition - Position;
 
-            if (direction.Length() > followDistance * 0.8f)
+            // 距离过远
+            double diff = 0.7 + new Random().NextDouble() * (1.2 - 0.7);
+            if (direction.Length() > followDistance * diff)
             {
                 direction.Normalize();
                 Position += direction * speed;
+            } else if (direction.Length() > followDistance * diff)
+            {
+                direction.Normalize();
+                Position -= direction * speed;
             }
         }
     }
