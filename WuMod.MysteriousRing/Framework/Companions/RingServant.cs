@@ -1,5 +1,3 @@
-
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,7 +6,7 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 
-namespace MysteriousRing.Companions
+namespace MysteriousRing.Framework.Companions
 {
     public class RingServant : NPC
     {
@@ -19,13 +17,32 @@ namespace MysteriousRing.Companions
 
         private readonly int speed = 6;
 
-        public static RingServant build(Farmer owner, Ring ring)
+        // public static RingServant Create(Farmer owner, Ring ring)
+        // {
+        //     Texture2D texture = ModEntry.ModHelper.ModContent.Load<Texture2D>(
+        //         "assets/ringServantCompanion.png"
+        //     );
+        //     // 创建AnimatedSprite（单帧）
+        //     var sprite = new AnimatedSprite(
+        //         textureName: "",       // 留空（因为直接使用Texture2D）
+        //         currentFrame: 0,       // 固定0帧
+        //         spriteWidth: texture.Width,  // 图片宽度=单帧宽度
+        //         spriteHeight: texture.Height // 图片高度=单帧高度
+        //     )
+        //     {
+        //         spriteTexture = texture // 直接赋值纹理
+        //     };
+
+        //     return new RingServant(sprite, owner, "Ring Servant Companion");
+        // }
+
+        internal RingServant(Farmer owner, string name) : base(null, owner.Tile * 64f, 0, name)
         {
+            // 创建AnimatedSprite（单帧）
             Texture2D texture = ModEntry.ModHelper.ModContent.Load<Texture2D>(
                 "assets/ringServantCompanion.png"
             );
-            // 创建AnimatedSprite（单帧）
-            var sprite = new AnimatedSprite(
+            base.Sprite = new AnimatedSprite(
                 textureName: "",       // 留空（因为直接使用Texture2D）
                 currentFrame: 0,       // 固定0帧
                 spriteWidth: texture.Width,  // 图片宽度=单帧宽度
@@ -35,23 +52,16 @@ namespace MysteriousRing.Companions
                 spriteTexture = texture // 直接赋值纹理
             };
 
-            return new RingServant(sprite, owner, "Ring Servant Companion");
-        }
-
-        private RingServant(AnimatedSprite sprite, Farmer owner, string name)
-            : base(
-                sprite,
-                owner.Tile * 64f,
-                0,
-                "CustomCompanion"
-            )
-        {
+            base.Sprite.loop = false;
             this.owner = owner;
-            this.HideShadow = true;
+            base.HideShadow = true;
+            base.Scale = 1;
             this.willDestroyObjectsUnderfoot = false;
-            this.collidesWithOtherCharacters.Value = false;
-            this.SimpleNonVillagerNPC = true;
-            this.Portrait = null;
+            base.collidesWithOtherCharacters.Value = false;
+            base.Breather = false; // 喘气
+            base.displayName = null;
+            base.Portrait = null;
+            base.SimpleNonVillagerNPC = true;
         }
 
         public override bool CanSocialize
@@ -62,9 +72,8 @@ namespace MysteriousRing.Companions
             }
         }
 
-        public override bool checkAction(Farmer who, GameLocation l)
+        public override bool canTalk()
         {
-            ModEntry.ModLogger.Log("checkAction");
             return false;
         }
 
@@ -82,7 +91,8 @@ namespace MysteriousRing.Companions
             {
                 direction.Normalize();
                 Position += direction * speed;
-            } else if (direction.Length() > followDistance * diff)
+            }
+            else if (direction.Length() < followDistance * diff)
             {
                 direction.Normalize();
                 Position -= direction * speed;

@@ -1,10 +1,10 @@
 
 
-using MysteriousRing.Companions;
+using MysteriousRing.Framework.Companions;
 using StardewValley;
 using StardewValley.Objects;
 
-namespace MysteriousRing.Managers
+namespace MysteriousRing.Framework.Managers
 {
     internal static class RingManager
     {
@@ -30,9 +30,9 @@ namespace MysteriousRing.Managers
         {
             if (ringServant == null && !location.characters.Contains(ringServant))
             {
-                ringServant = RingServant.build(
-                        who,
-                        ring
+                ringServant = new RingServant(
+                    who,
+                    "MyServant"
                 );
                 location.characters.Add(ringServant);
             }

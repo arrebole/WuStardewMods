@@ -3,9 +3,9 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 using System;
-using MysteriousRing.Managers;
+using MysteriousRing.Framework.Managers;
 
-namespace MysteriousRing.Patchs
+namespace MysteriousRing.Framework.Patchs
 {
     internal class RingPatch
     {

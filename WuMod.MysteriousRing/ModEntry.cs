@@ -1,14 +1,9 @@
 ﻿using HarmonyLib;
-using MysteriousRing.Patchs;
+using MysteriousRing.Framework.Patchs;
 using StardewModdingAPI;
 
 namespace MysteriousRing
 {
-    public interface IJsonAssetsApi
-    {
-        string GetObjectId(string name);
-    }
-
     public class ModEntry : Mod
     {
         internal static IModHelper ModHelper;
