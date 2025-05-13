@@ -30,7 +30,7 @@ namespace MysteriousRing.Framework.Managers
         {
             if (ringServant == null && !location.characters.Contains(ringServant))
             {
-                ringServant = new RingServant(
+                ringServant = RingServant.Create(
                     who,
                     "MyServant"
                 );
