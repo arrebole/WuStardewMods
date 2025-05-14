@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using MysteriousRing.Framework.Utils;
 using Netcode;
 using StardewModdingAPI;
 using StardewValley;
@@ -12,16 +13,24 @@ namespace MysteriousRing.Framework.Companions
     public class RingServant : NPC
     {
 
+        // 所属玩家
         private Farmer owner;
+        // 与玩家的跟随距离
+        private int followDistance = 120;
+
+
+        // 仆从的视野距离(发现敌人的距离)
+        private readonly float viewDistance = 200;
+        // 仆从的攻击距离
+        private readonly int attackRange = 50;
+        // 仆从的攻击速冻 (冷却时间(毫秒))
+        private readonly int AttackCooldownTime = 3000;
+        // 剩余攻击冷却时间，下一次攻击剩余时间
         private int attackCooldown = 0;
-        private int followDistance = 100;
-        private readonly int attackRange = 192;
-        // 攻击冷却时间(毫秒)
-        private readonly int AttackCooldownTime = 1000;
-        private bool isAttacking;
-        private int attackFrame;
-        private float attackRotation;
-        private readonly int speed = 6;
+        // 在攻击动画过程中
+        private bool isAttacking = false;
+        // 攻击力
+        private int attackDamage = 1;
 
         public static RingServant Create(Farmer owner, String name)
         {
@@ -52,6 +61,7 @@ namespace MysteriousRing.Framework.Companions
             base.Breather = false; // 喘气
             base.displayName = null;
             base.Portrait = null;
+            base.speed = 6;
         }
 
         protected override void initNetFields()
@@ -63,7 +73,6 @@ namespace MysteriousRing.Framework.Companions
         {
             return;
         }
-
 
         public override bool CanSocialize
         {
@@ -78,56 +87,46 @@ namespace MysteriousRing.Framework.Companions
             return false;
         }
 
+        // 核心函数
+        // 每帧调用一次 更新数据和状态
         public override void update(GameTime time, GameLocation location)
         {
+            // base.update() 会自动增加帧序列
             base.update(time, location);
 
-            // 寻找攻击目标
-            Monster target = this.findNewTarget(location);
-            if (target != null)
+            // 在动画中不进行操作，继续播放动画
+            if (this.Sprite.CurrentAnimation != null)
             {
-                updateAttack(time, target, location);
                 return;
             }
 
             // 计算与玩家的距离, 随机一个范围的跟随
             Vector2 targetPosition = owner.Position + new Vector2(0, -followDistance);
-            Vector2 direction = targetPosition - Position;
+            Vector2 direction = targetPosition - this.Position;
 
-            // 距离过远
-            double diff = 0.7 + new Random().NextDouble() * (1.2 - 0.7);
-            if (direction.Length() > followDistance * diff)
+            // 2倍距离范围内优先攻击敌人
+            if (direction.Length() < followDistance * 2)
+            {
+                // 寻找攻击目标
+                Monster target = MapUtils.findClosestMonster(
+                    Position, 
+                    viewDistance, 
+                    location
+                );
+                if (target != null)
+                {
+                    updateAttack(time, target, location);
+                    return;
+                }
+            }
+
+            // 距离过远跟随玩家
+            if (direction.Length() > followDistance)
             {
                 direction.Normalize();
                 Position += direction * speed;
+                return;
             }
-            // else if (direction.Length() < followDistance * diff)
-            // {
-            //     direction.Normalize();
-            //     Position -= direction * speed;
-            // }
-        }
-
-        // 寻找附近的攻击目标
-        private Monster findNewTarget(GameLocation location)
-        {
-            // 寻找附近的敌人
-            Monster currentTarget = null;
-            float closestDistance = float.MaxValue;
-
-            foreach (var character in location.characters)
-            {
-                if (character.IsMonster)
-                {
-                    float distance = Vector2.Distance(Position, character.Position);
-                    if (distance < attackRange && distance < closestDistance)
-                    {
-                        currentTarget = (Monster)character;
-                        closestDistance = distance;
-                    }
-                }
-            }
-            return currentTarget;
         }
 
         // 攻击目标
@@ -141,21 +140,29 @@ namespace MysteriousRing.Framework.Companions
             }
 
             float distanceToTarget = Vector2.Distance(Position, target.Position);
+            // 攻击距离足够近 则发起攻击
             if (distanceToTarget <= attackRange)
             {
-                // 开始进入战斗模式
-                if (!isAttacking)
-                {
-                    isAttacking = true;
-                    attackFrame = 0;
-                    attackRotation = (float)(Game1.random.NextDouble() * Math.PI * 2);
-                }
-                if (isAttacking) // 攻击动画到特定帧时造成伤害
-                {
-                    this.dealDamage(target, location);
-                    attackCooldown = AttackCooldownTime;
-                    isAttacking = false;
-                }
+                // 开始进入战斗模式帧动画
+                attackCooldown = AttackCooldownTime;
+
+                // this.Sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>{
+                // new FarmerSprite.AnimationFrame(0, 100),
+                // new FarmerSprite.AnimationFrame(1, 100),
+                // new FarmerSprite.AnimationFrame(2, 100),
+                // new FarmerSprite.AnimationFrame(3, 100),
+                // });
+
+                // 应用伤害
+                target.takeDamage(attackDamage, (int)Position.X, (int)Position.Y, false, 0, owner);
+
+                // 显示伤害数字
+                location.debris.Add(
+                    new Debris(attackDamage, target.getStandingPosition(), Color.Orange, 1f, target)
+                );
+
+                // 播放攻击效果
+                Game1.playSound("swordswipe");
             }
             else
             {
@@ -163,33 +170,6 @@ namespace MysteriousRing.Framework.Companions
                 Vector2 direction = Vector2.Normalize(target.Position - Position);
                 Position += direction * 2f;
             }
-        }
-
-        private void dealDamage(Monster target, GameLocation location)
-        {
-            int damage = 1;
-
-            // 应用伤害
-            target.takeDamage(
-                damage,
-                (int)Position.X,
-                (int)Position.Y,
-                false,
-                0,
-                owner
-            );
-
-            // 播放攻击效果
-            Game1.playSound("swordswipe");
-
-            // 显示伤害数字
-            location.debris.Add(new Debris(
-                damage,
-                target.getStandingPosition(),
-                Color.Orange,
-                1f,
-                target
-            ));
         }
     }
 }
