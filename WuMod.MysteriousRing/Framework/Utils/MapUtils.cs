@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Monsters;
 using StardewValley.Network;
 
@@ -17,11 +18,18 @@ namespace MysteriousRing.Framework.Utils
             {
                 if (character.IsMonster)
                 {
-                    float distance = Vector2.Distance(position, character.Position);
+                    Monster monster = (Monster)character;
+                    // 排除隐藏的目标
+                    if (!monster.IsInvisible && monster.Health > 0)
+                    {
+                        continue;
+                    }
+
+                    float distance = Vector2.Distance(position, monster.Position);
                     // 在视野范围内寻找距离最近的敌人
                     if (distance < viewDistance && distance < closestDistance)
                     {
-                        currentTarget = (Monster)character;
+                        currentTarget = monster;
                         closestDistance = distance;
                     }
                 }

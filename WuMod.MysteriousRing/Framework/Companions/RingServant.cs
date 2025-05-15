@@ -60,7 +60,7 @@ namespace MysteriousRing.Framework.Companions
             base.Breather = false; // 喘气
             base.displayName = null;
             base.Portrait = null;
-            base.speed = 6;
+            base.speed = 10;
             base.willDestroyObjectsUnderfoot = false;
             base.collidesWithOtherCharacters.Value = false;
         }
