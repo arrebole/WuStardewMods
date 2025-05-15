@@ -18,13 +18,12 @@ namespace MysteriousRing.Framework.Companions
         // 与玩家的跟随距离
         private int followDistance = 120;
 
-
         // 仆从的视野距离(发现敌人的距离)
-        private readonly float viewDistance = 200;
+        private readonly float viewDistance = 500;
         // 仆从的攻击距离
         private readonly int attackRange = 50;
         // 仆从的攻击速冻 (冷却时间(毫秒))
-        private readonly int AttackCooldownTime = 3000;
+        private readonly int AttackCooldownTime = 2500;
         // 剩余攻击冷却时间，下一次攻击剩余时间
         private int attackCooldown = 0;
         // 在攻击动画过程中
@@ -34,20 +33,22 @@ namespace MysteriousRing.Framework.Companions
 
         public static RingServant Create(Farmer owner, String name)
         {
+            // 加载mod中内容贴图
             Texture2D texture = ModEntry.ModHelper.ModContent.Load<Texture2D>(
-                "assets/ringServant.png"
+                "assets/RegularAxe.png"
             );
             // 创建AnimatedSprite（单帧）
             var sprite = new AnimatedSprite(
-                textureName: "",       // 留空（因为直接使用Texture2D）
-                currentFrame: 0,       // 固定0帧
-                spriteWidth: texture.Width,  // 图片宽度=单帧宽度
+                textureName: "",   // 留空（因为直接使用Texture2D）
+                currentFrame: 2,   // 固定0帧
+                spriteWidth: texture.Width / 6,  // 图片宽度=单帧宽度
                 spriteHeight: texture.Height // 图片高度=单帧高度
             )
             {
-                spriteTexture = texture // 直接赋值纹理
+                // 使用mod中的贴图纹理
+                spriteTexture = texture,
+                loop = false,
             };
-
             return new RingServant(sprite, owner, name);
         }
 
@@ -56,35 +57,17 @@ namespace MysteriousRing.Framework.Companions
             this.owner = owner;
             base.HideShadow = true;
             base.Scale = 1;
-            this.willDestroyObjectsUnderfoot = false;
-            base.collidesWithOtherCharacters.Value = false;
             base.Breather = false; // 喘气
             base.displayName = null;
             base.Portrait = null;
             base.speed = 6;
+            base.willDestroyObjectsUnderfoot = false;
+            base.collidesWithOtherCharacters.Value = false;
         }
 
         protected override void initNetFields()
         {
             base.initNetFields();
-        }
-
-        public override void ChooseAppearance(LocalizedContentManager content = null)
-        {
-            return;
-        }
-
-        public override bool CanSocialize
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        public override bool canTalk()
-        {
-            return false;
         }
 
         // 核心函数
@@ -146,12 +129,10 @@ namespace MysteriousRing.Framework.Companions
                 // 开始进入战斗模式帧动画
                 attackCooldown = AttackCooldownTime;
 
-                // this.Sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>{
-                // new FarmerSprite.AnimationFrame(0, 100),
-                // new FarmerSprite.AnimationFrame(1, 100),
-                // new FarmerSprite.AnimationFrame(2, 100),
-                // new FarmerSprite.AnimationFrame(3, 100),
-                // });
+                this.Sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>{
+                    new FarmerSprite.AnimationFrame(2, 200),
+                    new FarmerSprite.AnimationFrame(5, 200),
+                });
 
                 // 应用伤害
                 target.takeDamage(attackDamage, (int)Position.X, (int)Position.Y, false, 0, owner);
@@ -170,6 +151,41 @@ namespace MysteriousRing.Framework.Companions
                 Vector2 direction = Vector2.Normalize(target.Position - Position);
                 Position += direction * 2f;
             }
+        }
+    
+                public override void ChooseAppearance(LocalizedContentManager content = null)
+        {
+            return;
+        }
+
+        public override bool CanSocialize
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool canTalk()
+        {
+            return false;
+        }
+
+        public override bool isColliding(GameLocation l, Vector2 tile)
+        {
+            return false;
+
+        }
+
+        public override bool collideWith(StardewValley.Object o)
+        {
+            return false;
+
+        }
+
+        public override bool shouldCollideWithBuildingLayer(GameLocation location)
+        {
+            return false;
         }
     }
 }
