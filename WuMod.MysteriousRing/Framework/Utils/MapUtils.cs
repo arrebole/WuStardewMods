@@ -20,7 +20,7 @@ namespace MysteriousRing.Framework.Utils
                 {
                     Monster monster = (Monster)character;
                     // 排除隐藏的目标
-                    if (!monster.IsInvisible && monster.Health > 0)
+                    if (monster.IsInvisible || monster.Health <= 0)
                     {
                         continue;
                     }

@@ -7,6 +7,7 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
 using StardewValley.Objects;
+using StardewValley.Pathfinding;
 
 namespace MysteriousRing.Framework.Companions
 {
@@ -15,11 +16,11 @@ namespace MysteriousRing.Framework.Companions
 
         // 所属玩家
         private Farmer owner;
-        // 与玩家的跟随距离
-        private int followDistance = 120;
+        // 与玩家跟随状态下的跟随距离
+        private int followDistance = 100;
 
         // 仆从的视野距离(发现敌人的距离)
-        private readonly float viewDistance = 500;
+        private readonly float viewDistance = 300;
         // 仆从的攻击距离
         private readonly int attackRange = 50;
         // 仆从的攻击速冻 (冷却时间(毫秒))
@@ -60,7 +61,7 @@ namespace MysteriousRing.Framework.Companions
             base.Breather = false; // 喘气
             base.displayName = null;
             base.Portrait = null;
-            base.speed = 10;
+            base.speed = 4;
             base.willDestroyObjectsUnderfoot = false;
             base.collidesWithOtherCharacters.Value = false;
         }
@@ -68,6 +69,12 @@ namespace MysteriousRing.Framework.Companions
         protected override void initNetFields()
         {
             base.initNetFields();
+        }
+
+        // 静止状态hook
+        public override void Halt()
+        {
+            base.Halt();
         }
 
         // 核心函数
@@ -78,32 +85,32 @@ namespace MysteriousRing.Framework.Companions
             base.update(time, location);
 
             // 在动画中不进行操作，继续播放动画
-            if (this.Sprite.CurrentAnimation != null)
+            if (Sprite.CurrentAnimation != null)
             {
                 return;
             }
 
-            // 计算与玩家的距离, 随机一个范围的跟随
-            Vector2 targetPosition = owner.Position + new Vector2(0, -followDistance);
-            Vector2 direction = targetPosition - this.Position;
-
-            // 2倍距离范围内优先攻击敌人
-            if (direction.Length() < followDistance * 2)
+            // 以主人为中心 寻找视野范围内的敌人
+            Monster target = MapUtils.findClosestMonster(
+                owner.Position,
+                viewDistance,
+                location
+            );
+            // 如果存在敌人 并且与主人距离小于视野距离 则进行攻击
+            if (target != null)
             {
-                // 寻找攻击目标
-                Monster target = MapUtils.findClosestMonster(
-                    Position, 
-                    viewDistance, 
-                    location
-                );
-                if (target != null)
-                {
-                    updateAttack(time, target, location);
-                    return;
-                }
+                updateAttack(time, target, location);
+                return;
             }
+            updateFollow(time, location);
+        }
 
-            // 距离过远跟随玩家
+        // 跟随
+        private void updateFollow(GameTime gameTime, GameLocation location)
+        {
+            // 计算与玩家的距离, 进行跟随
+            Vector2 targetPosition = owner.Position + new Vector2(0, -followDistance);
+            Vector2 direction = targetPosition - Position;
             if (direction.Length() > followDistance)
             {
                 direction.Normalize();
@@ -129,9 +136,9 @@ namespace MysteriousRing.Framework.Companions
                 // 开始进入战斗模式帧动画
                 attackCooldown = AttackCooldownTime;
 
-                this.Sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>{
-                    new FarmerSprite.AnimationFrame(2, 200),
-                    new FarmerSprite.AnimationFrame(5, 200),
+                Sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>{
+                    new FarmerSprite.AnimationFrame(2, 150),
+                    new FarmerSprite.AnimationFrame(5, 150),
                 });
 
                 // 应用伤害
@@ -149,11 +156,11 @@ namespace MysteriousRing.Framework.Companions
             {
                 // 向目标移动
                 Vector2 direction = Vector2.Normalize(target.Position - Position);
-                Position += direction * 2f;
+                Position += direction * speed;
             }
         }
     
-                public override void ChooseAppearance(LocalizedContentManager content = null)
+        public override void ChooseAppearance(LocalizedContentManager content = null)
         {
             return;
         }
@@ -171,10 +178,14 @@ namespace MysteriousRing.Framework.Companions
             return false;
         }
 
+        public override Rectangle GetBoundingBox()
+        {
+            return new Rectangle((int)Position.X, (int)Position.Y, 0, 0); 
+        }
+
         public override bool isColliding(GameLocation l, Vector2 tile)
         {
             return false;
-
         }
 
         public override bool collideWith(StardewValley.Object o)
