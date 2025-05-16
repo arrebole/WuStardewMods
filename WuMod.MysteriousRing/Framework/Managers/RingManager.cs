@@ -32,7 +32,7 @@ namespace MysteriousRing.Framework.Managers
             {
                 ringServant = RingServant.Create(
                     who,
-                    "MyServant"
+                    $"{who.UniqueMultiplayerID}_servant"
                 );
                 location.characters.Add(ringServant);
             }
