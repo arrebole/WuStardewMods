@@ -31,8 +31,7 @@ namespace MysteriousRing.Framework.Managers
             if (ringServant == null && !location.characters.Contains(ringServant))
             {
                 ringServant = RingServant.Create(
-                    who,
-                    $"{who.UniqueMultiplayerID}_servant"
+                    who
                 );
                 location.characters.Add(ringServant);
             }

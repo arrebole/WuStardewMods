@@ -17,76 +17,92 @@ namespace MysteriousRing.Framework.Companions
         // 所属玩家
         private Farmer owner;
         // 与玩家跟随状态下的跟随距离
-        private int followDistance = 150;
+        private int followDistance;
 
         // 仆从的视野距离(发现敌人的距离)
-        private readonly float viewDistance = 500;
+        private readonly float viewDistance;
         // 仆从的攻击距离
-        private readonly int attackRange = 80;
+        private readonly int attackRange;
         // 仆从的攻击速冻 (冷却时间(毫秒))
-        private readonly int AttackCooldownTime = 2000;
+        private readonly int AttackCooldownTime;
         // 剩余攻击冷却时间，下一次攻击剩余时间
         private int attackCooldown = 0;
         // 攻击力
-        private int attackDamage = 3;
+        private int attackDamage;
         //  状态上下浮动
         private int idleOffsetY = 0;
-
+        // 右攻击动画
         private List<FarmerSprite.AnimationFrame> attackRightFrames;
+        // 左攻击动画
         private List<FarmerSprite.AnimationFrame> attackLeftFrames;
 
-        public static RingServant Create(Farmer owner, String name)
+        public static RingServant Create(Farmer owner)
         {
+
             // 加载mod中内容贴图
             Texture2D texture = ModEntry.ModHelper.ModContent.Load<Texture2D>(
-                "assets/servant_1.png"
+                $"assets/servant_1.png"
             );
-            // 创建AnimatedSprite（单帧）
-            AnimatedSprite sprite = new AnimatedSprite(
-                textureName: "",   // 留空（因为直接使用Texture2D）
-                currentFrame: 0,   // 固定0帧
-                spriteWidth: texture.Width / 7,  // 图片宽度=单帧宽度
-                spriteHeight: texture.Height / 2 // 图片高度=单帧高度
-            )
+
+            ServantConfig config = new ServantConfig()
             {
-                // 使用mod中的贴图纹理
-                spriteTexture = texture,
-                loop = false,
+                name = "servant_1",
+                owner = owner,
+                followDistance = 150,
+                viewDistance = 700,
+                attackRange = 120,
+                attackSpeed = 0.25,
+                attackDamage = 3 * owner.CombatLevel,
+                moveSpend = 8,
+                animatedSprite = new AnimatedSprite(
+                    textureName: "",   // 留空（因为直接使用Texture2D）
+                    currentFrame: 0,   // 固定0帧
+                    spriteWidth: texture.Width / 7,  // 图片宽度=单帧宽度
+                    spriteHeight: texture.Height / 2 // 图片高度=单帧高度
+                )
+                {
+                    spriteTexture = texture,
+                    loop = false,
+                },
+                attackRightFrames = new List<FarmerSprite.AnimationFrame>{
+                    new FarmerSprite.AnimationFrame(0, 50),
+                    new FarmerSprite.AnimationFrame(1, 150),
+                    new FarmerSprite.AnimationFrame(2, 80),
+                    new FarmerSprite.AnimationFrame(3, 80),
+                    new FarmerSprite.AnimationFrame(4, 80),
+                    new FarmerSprite.AnimationFrame(5, 80),
+                    new FarmerSprite.AnimationFrame(6, 150),
+                },
+                attackLeftFrames = new List<FarmerSprite.AnimationFrame>{
+                    new FarmerSprite.AnimationFrame(7, 50),
+                    new FarmerSprite.AnimationFrame(8, 150),
+                    new FarmerSprite.AnimationFrame(9, 80),
+                    new FarmerSprite.AnimationFrame(10, 80),
+                    new FarmerSprite.AnimationFrame(11, 80),
+                    new FarmerSprite.AnimationFrame(12, 80),
+                    new FarmerSprite.AnimationFrame(13, 150),
+                }
             };
-
-            RingServant servant = new RingServant(sprite, owner, name);
-
-            // 设置动画
-            servant.attackRightFrames = new List<FarmerSprite.AnimationFrame>{
-                new FarmerSprite.AnimationFrame(0, 100),
-                new FarmerSprite.AnimationFrame(1, 150),
-                new FarmerSprite.AnimationFrame(2, 100),
-                new FarmerSprite.AnimationFrame(3, 100),
-                new FarmerSprite.AnimationFrame(4, 100),
-                new FarmerSprite.AnimationFrame(5, 100),
-                new FarmerSprite.AnimationFrame(6, 150),
-            };
-            servant.attackLeftFrames = new List<FarmerSprite.AnimationFrame>{
-                new FarmerSprite.AnimationFrame(7, 100),
-                new FarmerSprite.AnimationFrame(8, 150),
-                new FarmerSprite.AnimationFrame(9, 100),
-                new FarmerSprite.AnimationFrame(10, 100),
-                new FarmerSprite.AnimationFrame(11, 100),
-                new FarmerSprite.AnimationFrame(12, 100),
-                new FarmerSprite.AnimationFrame(13, 150),
-            };
-            return servant;
+            return new RingServant(config);
         }
 
-        private RingServant(AnimatedSprite sprite, Farmer owner, string name) : base(sprite, owner.Tile * 64f, 0, name)
+        private RingServant(ServantConfig config) : base(config.animatedSprite, config.owner.Tile * 64f, 0, config.name)
         {
-            this.owner = owner;
+            this.owner = config.owner;
+            this.viewDistance = config.viewDistance;
+            this.attackDamage = config.attackDamage;
+            this.attackRange = config.attackRange;
+            this.followDistance = config.followDistance;
+            this.attackRightFrames = config.attackRightFrames;
+            this.attackLeftFrames = config.attackLeftFrames;
+            this.AttackCooldownTime = (int)(1000 / config.attackSpeed);
+            base.speed = config.moveSpend;
+
             base.HideShadow = true;
             base.Scale = 1;
             base.Breather = false; // 喘气
             base.displayName = null;
             base.Portrait = null;
-            base.speed = 6;
             base.willDestroyObjectsUnderfoot = false;
             base.collidesWithOtherCharacters.Value = false;
         }
@@ -146,15 +162,15 @@ namespace MysteriousRing.Framework.Companions
             }
             else
             {
-                if (idleOffsetY > 15)
+                if (idleOffsetY > 25)
                 {
-                    Position += new Vector2(0, -0.5f);
+                    Position += new Vector2(0, -0.2f);
                 }
                 else
                 {
-                    Position += new Vector2(0, 0.5f);
+                    Position += new Vector2(0, 0.2f);
                 }
-                idleOffsetY = (idleOffsetY + 1) % 30;
+                idleOffsetY = (idleOffsetY + 1) % 50;
             }
         }
 
@@ -178,7 +194,7 @@ namespace MysteriousRing.Framework.Companions
             float distanceToTarget = Vector2.Distance(Position, target.Position);
 
             // 攻击距离足够近 则发起攻击
-            if (distanceToTarget <= attackRange)
+            if (distanceToTarget <= attackRange - 20)
             {
                 // 开始进入战斗模式帧动画
                 attackCooldown = AttackCooldownTime;
@@ -201,20 +217,29 @@ namespace MysteriousRing.Framework.Companions
                     }
                 }
 
-                // 应用伤害
-                target.takeDamage(
-                    attackDamage,
-                    (int)target.Position.X,
-                    (int)target.Position.Y,
-                    false,
-                    0,
-                    owner
+                // 查询目标范围内的所有怪物 攻击产生群体伤害
+                List<Monster> monsters = MapUtils.findRangeMonsters(
+                    Position,
+                    attackRange,
+                    location
                 );
 
-                // 显示伤害数字
-                location.debris.Add(
-                    new Debris(attackDamage, target.getStandingPosition(), Color.Orange, 1f, target)
-                );
+                foreach (var monster in monsters)
+                {
+                    // 应用伤害
+                    int damageNum = monster.takeDamage(
+                        attackDamage,
+                        (int)monster.Position.X,
+                        (int)monster.Position.Y,
+                        false,
+                        0,
+                        owner
+                    );
+                    // 显示伤害数字
+                    location.debris.Add(
+                        new Debris(damageNum, monster.getStandingPosition(), Color.Orange, 1f, monster)
+                    );
+                }
 
                 // 播放攻击声效
                 Game1.playSound("swordswipe");
