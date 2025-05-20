@@ -26,13 +26,27 @@ namespace MysteriousRing.Framework.Managers
             return false;
         }
 
+        internal static bool ChangeServant(Farmer who)
+        {
+            if (ringServant == null)
+            {
+                return false;
+            }
+            // 移除旧随从
+            who.currentLocation.characters.Remove(ringServant);
+            // 创建新随从
+            ringServant = new ServantCreator().create(who);
+            // 加入地图
+            who.currentLocation.characters.Add(ringServant);
+
+            return true;
+        }
+
         internal static void HandleEquip(Farmer who, GameLocation location, Ring ring)
         {
             if (ringServant == null && !location.characters.Contains(ringServant))
             {
-                ringServant = RingServant.Create(
-                    who
-                );
+                ringServant = new ServantCreator().create(who);
                 location.characters.Add(ringServant);
             }
         }

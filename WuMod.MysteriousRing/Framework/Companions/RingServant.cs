@@ -31,62 +31,14 @@ namespace MysteriousRing.Framework.Companions
         private int attackDamage;
         //  状态上下浮动
         private int idleOffsetY = 0;
+        // 空闲
+        private List<FarmerSprite.AnimationFrame> idleFrames;
         // 右攻击动画
         private List<FarmerSprite.AnimationFrame> attackRightFrames;
         // 左攻击动画
         private List<FarmerSprite.AnimationFrame> attackLeftFrames;
 
-        public static RingServant Create(Farmer owner)
-        {
-
-            // 加载mod中内容贴图
-            Texture2D texture = ModEntry.ModHelper.ModContent.Load<Texture2D>(
-                $"assets/servant_1.png"
-            );
-
-            ServantConfig config = new ServantConfig()
-            {
-                name = "servant_1",
-                owner = owner,
-                followDistance = 150,
-                viewDistance = 700,
-                attackRange = 120,
-                attackSpeed = 0.25,
-                attackDamage = 3 * owner.CombatLevel,
-                moveSpend = 8,
-                animatedSprite = new AnimatedSprite(
-                    textureName: "",   // 留空（因为直接使用Texture2D）
-                    currentFrame: 0,   // 固定0帧
-                    spriteWidth: texture.Width / 7,  // 图片宽度=单帧宽度
-                    spriteHeight: texture.Height / 2 // 图片高度=单帧高度
-                )
-                {
-                    spriteTexture = texture,
-                    loop = false,
-                },
-                attackRightFrames = new List<FarmerSprite.AnimationFrame>{
-                    new FarmerSprite.AnimationFrame(0, 50),
-                    new FarmerSprite.AnimationFrame(1, 150),
-                    new FarmerSprite.AnimationFrame(2, 80),
-                    new FarmerSprite.AnimationFrame(3, 80),
-                    new FarmerSprite.AnimationFrame(4, 80),
-                    new FarmerSprite.AnimationFrame(5, 80),
-                    new FarmerSprite.AnimationFrame(6, 150),
-                },
-                attackLeftFrames = new List<FarmerSprite.AnimationFrame>{
-                    new FarmerSprite.AnimationFrame(7, 50),
-                    new FarmerSprite.AnimationFrame(8, 150),
-                    new FarmerSprite.AnimationFrame(9, 80),
-                    new FarmerSprite.AnimationFrame(10, 80),
-                    new FarmerSprite.AnimationFrame(11, 80),
-                    new FarmerSprite.AnimationFrame(12, 80),
-                    new FarmerSprite.AnimationFrame(13, 150),
-                }
-            };
-            return new RingServant(config);
-        }
-
-        private RingServant(ServantConfig config) : base(config.animatedSprite, config.owner.Tile * 64f, 0, config.name)
+        internal RingServant(ServantConfig config) : base(config.animatedSprite, config.owner.Tile * 64f, 0, config.name)
         {
             this.owner = config.owner;
             this.viewDistance = config.viewDistance;
@@ -162,16 +114,21 @@ namespace MysteriousRing.Framework.Companions
             }
             else
             {
-                if (idleOffsetY > 25)
-                {
-                    Position += new Vector2(0, -0.2f);
-                }
-                else
-                {
-                    Position += new Vector2(0, 0.2f);
-                }
-                idleOffsetY = (idleOffsetY + 1) % 50;
+                idle();
             }
+        }
+
+        public virtual void idle()
+        {
+            if (idleOffsetY > 25)
+            {
+                Position += new Vector2(0, -0.2f);
+            }
+            else
+            {
+                Position += new Vector2(0, 0.2f);
+            }
+            idleOffsetY = (idleOffsetY + 1) % 50;
         }
 
         public bool IsStationary()

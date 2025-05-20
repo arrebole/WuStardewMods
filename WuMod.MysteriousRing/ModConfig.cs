@@ -23,6 +23,7 @@ namespace MysteriousRing
         // 动画
         public AnimatedSprite animatedSprite;
         // 攻击动画
+        public List<FarmerSprite.AnimationFrame> idleFrames;
         public List<FarmerSprite.AnimationFrame> attackRightFrames;
         public List<FarmerSprite.AnimationFrame> attackLeftFrames;
     }
