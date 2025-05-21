@@ -77,12 +77,6 @@ namespace MysteriousRing.Framework.Companions
             // base.update() 会自动增加帧序列
             base.update(time, location);
 
-            // 在动画中不进行操作，继续播放动画
-            if (Sprite.CurrentAnimation != null)
-            {
-                return;
-            }
-
             // 以主人为中心 寻找视野范围内的敌人
             Monster target = MapUtils.findClosestMonster(
                 owner.Position,
@@ -118,8 +112,15 @@ namespace MysteriousRing.Framework.Companions
             }
         }
 
+        // 空闲状态
         public virtual void idle()
         {
+            if (idleFrames != null)
+            {
+                Sprite.setCurrentAnimation(idleFrames);
+                return;
+            }
+
             if (idleOffsetY > 25)
             {
                 Position += new Vector2(0, -0.2f);
@@ -141,17 +142,20 @@ namespace MysteriousRing.Framework.Companions
         private void updateAttack(GameTime gameTime, Monster target, GameLocation location)
         {
             // 冷却计时
-            if (attackCooldown > 0)
+            if (attackCooldown > 0 || Sprite.CurrentAnimation != null)
             {
                 attackCooldown -= gameTime.ElapsedGameTime.Milliseconds;
-                return;
             }
 
             // 计算与目标的距离
             float distanceToTarget = Vector2.Distance(Position, target.Position);
 
             // 攻击距离足够近 则发起攻击
-            if (distanceToTarget <= attackRange - 20)
+            bool canAttack = distanceToTarget <= attackRange - 20
+                && attackCooldown <= 0
+                && Sprite.CurrentAnimation == null;
+  
+            if (canAttack)
             {
                 // 开始进入战斗模式帧动画
                 attackCooldown = AttackCooldownTime;
