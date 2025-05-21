@@ -31,6 +31,8 @@ namespace MysteriousRing.Framework.Companions
         private int attackDamage;
         //  状态上下浮动
         private int idleOffsetY = 0;
+        // 移动攻击
+        private bool enableMoveAttack;
         // 空闲
         private List<FarmerSprite.AnimationFrame> idleFrames;
         // 右攻击动画
@@ -145,6 +147,12 @@ namespace MysteriousRing.Framework.Companions
             if (attackCooldown > 0 || Sprite.CurrentAnimation != null)
             {
                 attackCooldown -= gameTime.ElapsedGameTime.Milliseconds;
+
+                // 没有启动移动攻击
+                if (!enableMoveAttack)
+                {
+                    return;
+                }
             }
 
             // 计算与目标的距离

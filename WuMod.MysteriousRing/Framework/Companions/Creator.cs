@@ -38,6 +38,7 @@ namespace MysteriousRing.Framework.Companions
                 attackSpeed = 0.25,
                 attackDamage = 3 * owner.CombatLevel,
                 moveSpend = 6,
+                enableMoveAttack = false,
                 animatedSprite = new AnimatedSprite(
                     textureName: "",   // 留空（因为直接使用Texture2D）
                     currentFrame: 0,   // 固定0帧
@@ -87,6 +88,7 @@ namespace MysteriousRing.Framework.Companions
                 attackSpeed = 0.6,
                 attackDamage = 1 * owner.CombatLevel,
                 moveSpend = 8,
+                enableMoveAttack = true,
                 animatedSprite = new AnimatedSprite(
                     textureName: "",   // 留空（因为直接使用Texture2D）
                     currentFrame: 0,   // 固定0帧

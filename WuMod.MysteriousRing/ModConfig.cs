@@ -19,6 +19,8 @@ namespace MysteriousRing
         public int attackDamage = 3;
         // 移动速度
         public int moveSpend = 8;
+        // 移动攻击
+        public bool enableMoveAttack = false;
 
         // 动画
         public AnimatedSprite animatedSprite;
