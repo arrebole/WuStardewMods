@@ -6,11 +6,11 @@ namespace MysteriousRing.Framework.Companions
 {
     internal class ServantCreator
     {
+        private int count = 1;
 
         internal RingServant create(Farmer owner)
         {
-            int num = new Random().Next(1, 3);
-            switch (num)
+            switch (++count % 10)
             {
                 case 1:
                     return this.Create1(owner);
@@ -38,6 +38,7 @@ namespace MysteriousRing.Framework.Companions
                 attackSpeed = 0.25,
                 attackDamage = 3 * owner.CombatLevel,
                 moveSpend = 6,
+                idleOnHead = false,
                 enableMoveAttack = false,
                 animatedSprite = new AnimatedSprite(
                     textureName: "",   // 留空（因为直接使用Texture2D）
@@ -84,10 +85,11 @@ namespace MysteriousRing.Framework.Companions
                 owner = owner,
                 followDistance = 100,
                 viewDistance = 500,
-                attackRange = 80,
+                attackRange = 50,
                 attackSpeed = 0.6,
                 attackDamage = 1 * owner.CombatLevel,
                 moveSpend = 8,
+                idleOnHead = true,
                 enableMoveAttack = true,
                 animatedSprite = new AnimatedSprite(
                     textureName: "",   // 留空（因为直接使用Texture2D）
@@ -105,7 +107,7 @@ namespace MysteriousRing.Framework.Companions
                     new FarmerSprite.AnimationFrame(1, 100),
                     new FarmerSprite.AnimationFrame(2, 100),
                     new FarmerSprite.AnimationFrame(3, 100),
-                    new FarmerSprite.AnimationFrame(4, 100), 
+                    new FarmerSprite.AnimationFrame(4, 100),
                 },
                 attackRightFrames = new List<FarmerSprite.AnimationFrame>{
                     new FarmerSprite.AnimationFrame(7, 100),

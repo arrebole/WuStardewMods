@@ -15,30 +15,34 @@ namespace MysteriousRing.Framework.Companions
     {
 
         // 所属玩家
-        private Farmer owner;
+        protected Farmer owner;
         // 与玩家跟随状态下的跟随距离
-        private int followDistance;
+        protected int followDistance;
 
         // 仆从的视野距离(发现敌人的距离)
-        private readonly float viewDistance;
+        protected readonly float viewDistance;
         // 仆从的攻击距离
-        private readonly int attackRange;
+        protected readonly int attackRange;
         // 仆从的攻击速冻 (冷却时间(毫秒))
-        private readonly int AttackCooldownTime;
+        protected readonly int AttackCooldownTime;
         // 剩余攻击冷却时间，下一次攻击剩余时间
-        private int attackCooldown = 0;
+        protected int attackCooldown = 0;
         // 攻击力
-        private int attackDamage;
+        protected int attackDamage;
+        // 是否停在头上
+        protected bool idleOnHead;
+        // 停留在头上剩余时间
+        protected int idleOnHeadTime;
         //  状态上下浮动
-        private int idleOffsetY = 0;
+        protected int idleOffsetY = 0;
         // 移动攻击
-        private bool enableMoveAttack;
+        protected bool enableMoveAttack;
         // 空闲
-        private List<FarmerSprite.AnimationFrame> idleFrames;
+        protected List<FarmerSprite.AnimationFrame> idleFrames;
         // 右攻击动画
-        private List<FarmerSprite.AnimationFrame> attackRightFrames;
+        protected List<FarmerSprite.AnimationFrame> attackRightFrames;
         // 左攻击动画
-        private List<FarmerSprite.AnimationFrame> attackLeftFrames;
+        protected List<FarmerSprite.AnimationFrame> attackLeftFrames;
 
         internal RingServant(ServantConfig config) : base(config.animatedSprite, config.owner.Tile * 64f, 0, config.name)
         {
@@ -46,12 +50,15 @@ namespace MysteriousRing.Framework.Companions
             this.viewDistance = config.viewDistance;
             this.attackDamage = config.attackDamage;
             this.attackRange = config.attackRange;
+            this.idleOnHead = config.idleOnHead;
             this.followDistance = config.followDistance;
+            this.idleFrames = config.idleFrames;
             this.attackRightFrames = config.attackRightFrames;
             this.attackLeftFrames = config.attackLeftFrames;
             this.AttackCooldownTime = (int)(1000 / config.attackSpeed);
             base.speed = config.moveSpend;
-
+            base.Position = owner.Position + new Vector2(0, 20f);
+            base.addedSpeed = 0;
             base.HideShadow = true;
             base.Scale = 1;
             base.Breather = false; // 喘气
@@ -91,22 +98,13 @@ namespace MysteriousRing.Framework.Companions
                 updateAttack(time, target, location);
                 return;
             }
-            updateFollow(time, location);
-        }
 
-        // 跟随
-        private void updateFollow(GameTime gameTime, GameLocation location)
-        {
-            // 计算与玩家的距离, 进行跟随
-            float distance = Vector2.Distance(owner.Position, Position);
-            if (distance > followDistance)
+            // 计算是否需要跟随主人
+            // 不需要跟随则进入空闲状态
+            Vector2 nextPosition = getNextIdlePosition();
+            if (nextPosition != Position)
             {
-                // 计算方向并归一化
-                Vector2 direction = owner.Position - Position;
-                direction.Normalize();
-                // 移动仆从
-                Position += direction * speed;
-                return;
+                Position = nextPosition;
             }
             else
             {
@@ -114,15 +112,45 @@ namespace MysteriousRing.Framework.Companions
             }
         }
 
-        // 空闲状态
-        public virtual void idle()
+        protected virtual Vector2 getNextIdlePosition()
         {
-            if (idleFrames != null)
+            Vector2 nextPosition = Position;
+
+            // 计算与玩家的距离, 如果距离过远 则进行计算跟随的位置
+            float distance = Vector2.Distance(owner.Position, Position);
+            if (distance > followDistance)
+            {
+                // 计算方向并归一化
+                Vector2 direction = owner.Position - Position;
+                direction.Normalize();
+                nextPosition = Position + direction * (speed + addedSpeed);
+            }
+            else if (idleOnHead)
+            {
+                // 停在头上
+                Vector2 direction = owner.Position + new Vector2(0, -owner.Sprite.SpriteHeight * 2) - Position;
+                if (direction.Length() != 0)
+                {
+                    direction.Normalize();
+                    nextPosition = Position + direction * 2;
+                }
+            }
+
+            // 保持原地
+            return nextPosition;
+        }
+
+        // 空闲状态
+        protected virtual void idle()
+        {
+            // 如果有空闲动画，则播放空闲动画
+            if (idleFrames != null && Sprite.CurrentAnimation == null)
             {
                 Sprite.setCurrentAnimation(idleFrames);
                 return;
             }
 
+            // 上下浮动漂浮
             if (idleOffsetY > 25)
             {
                 Position += new Vector2(0, -0.2f);
@@ -132,12 +160,6 @@ namespace MysteriousRing.Framework.Companions
                 Position += new Vector2(0, 0.2f);
             }
             idleOffsetY = (idleOffsetY + 1) % 50;
-        }
-
-        public bool IsStationary()
-        {
-            // 同时检测X轴和Y轴速度
-            return this.xVelocity == 0 && this.yVelocity == 0;
         }
 
         // 攻击目标
@@ -217,7 +239,7 @@ namespace MysteriousRing.Framework.Companions
             {
                 // 向目标移动
                 Vector2 direction = Vector2.Normalize(target.Position - Position);
-                Position += direction * speed;
+                Position += direction * (speed + addedSpeed);
             }
         }
 
