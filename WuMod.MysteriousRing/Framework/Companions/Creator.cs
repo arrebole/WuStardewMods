@@ -6,19 +6,21 @@ namespace MysteriousRing.Framework.Companions
 {
     internal class ServantCreator
     {
-        private int count = 1;
+        private static int count = 0;
 
         internal RingServant create(Farmer owner)
         {
-            switch (++count % 10)
-            {
-                case 1:
-                    return this.Create1(owner);
-                case 2:
-                    return this.Create2(owner);
-                default:
-                    return this.Create1(owner);
-            }
+            Func<Farmer, RingServant>[] creators = new Func<Farmer, RingServant>[] {
+                Create1,
+                Create2
+            };
+            return creators[count % creators.Length](owner);
+        }
+
+        internal RingServant createNext(Farmer owner)
+        {
+            count = count + 1;
+            return create(owner);
         }
 
         private RingServant Create1(Farmer owner)

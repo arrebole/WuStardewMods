@@ -56,16 +56,18 @@ namespace MysteriousRing.Framework.Companions
             this.attackRightFrames = config.attackRightFrames;
             this.attackLeftFrames = config.attackLeftFrames;
             this.AttackCooldownTime = (int)(1000 / config.attackSpeed);
-            base.speed = config.moveSpend;
-            base.Position = owner.Position + new Vector2(0, 20f);
-            base.addedSpeed = 0;
-            base.HideShadow = true;
-            base.Scale = 1;
-            base.Breather = false; // 喘气
-            base.displayName = null;
-            base.Portrait = null;
-            base.willDestroyObjectsUnderfoot = false;
-            base.collidesWithOtherCharacters.Value = false;
+            this.speed = config.moveSpend;
+            this.Position = owner.Position + new Vector2(0, 20f);
+            this.addedSpeed = 0;
+            this.HideShadow = true;
+            this.Scale = 1;
+            this.Breather = false; // 喘气
+            this.displayName = null;
+            this.Portrait = null;
+            this.willDestroyObjectsUnderfoot = false;
+            this.drawOnTop = true;
+            // 与其他角色发生碰撞
+            this.collidesWithOtherCharacters.Value = false;
         }
 
         protected override void initNetFields()
@@ -120,17 +122,20 @@ namespace MysteriousRing.Framework.Companions
             float distance = Vector2.Distance(owner.Position, Position);
             if (distance > followDistance)
             {
-                // 计算方向并归一化
+                // 计算方向距离
                 Vector2 direction = owner.Position - Position;
+                // 向量长度变为1
                 direction.Normalize();
+                // 下一个移动位置
                 nextPosition = Position + direction * (speed + addedSpeed);
             }
             else if (idleOnHead)
             {
                 // 停在头上
-                Vector2 direction = owner.Position + new Vector2(0, -owner.Sprite.SpriteHeight * 2) - Position;
-                if (direction.Length() != 0)
+                Vector2 target = owner.Position + new Vector2(-owner.Sprite.SpriteWidth * 2, -owner.Sprite.SpriteHeight * 3);
+                if (Vector2.Distance(target, Position) > 10)
                 {
+                    Vector2 direction = target - Position;
                     direction.Normalize();
                     nextPosition = Position + direction * 2;
                 }
@@ -263,12 +268,13 @@ namespace MysteriousRing.Framework.Companions
 
         public override Rectangle GetBoundingBox()
         {
-            return new Rectangle((int)Position.X, (int)Position.Y, 0, 0);
+            return Rectangle.Empty;
         }
 
-        public override bool isColliding(GameLocation l, Vector2 tile)
+        // 可以通过所有动作地块
+        public override bool canPassThroughActionTiles()
         {
-            return false;
+            return true;
         }
 
         public override bool collideWith(StardewValley.Object o)

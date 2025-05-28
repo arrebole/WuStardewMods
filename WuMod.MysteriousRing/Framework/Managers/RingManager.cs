@@ -32,12 +32,13 @@ namespace MysteriousRing.Framework.Managers
             {
                 // 移除旧随从
                 who.currentLocation.characters.Remove(ringServant);
-            }
 
-            // 创建新随从
-            ringServant = new ServantCreator().create(who);
-            // 加入地图
-            who.currentLocation.characters.Add(ringServant);
+                // 创建新随从
+                ringServant = new ServantCreator().createNext(who);
+
+                // 加入地图
+                who.currentLocation.characters.Add(ringServant);
+            }
             return true;
         }
 
