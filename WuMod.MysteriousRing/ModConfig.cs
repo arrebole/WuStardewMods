@@ -17,6 +17,8 @@ namespace MysteriousRing
         public double attackSpeed = 0.25;
         // 攻击力
         public int attackDamage = 3;
+        // 生命吸取
+        public float bloodsucking = 0;
         // 移动速度
         public int moveSpend = 8;
         // 移动攻击

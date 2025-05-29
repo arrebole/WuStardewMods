@@ -37,6 +37,8 @@ namespace MysteriousRing.Framework.Companions
         protected int idleOffsetY = 0;
         // 移动攻击
         protected bool enableMoveAttack;
+        // 吸取生命
+        protected float bloodsucking;
         // 空闲
         protected List<FarmerSprite.AnimationFrame> idleFrames;
         // 右攻击动画
@@ -48,6 +50,7 @@ namespace MysteriousRing.Framework.Companions
         {
             this.owner = config.owner;
             this.viewDistance = config.viewDistance;
+            this.bloodsucking = config.bloodsucking;
             this.attackDamage = config.attackDamage;
             this.attackRange = config.attackRange;
             this.idleOnHead = config.idleOnHead;
@@ -235,10 +238,28 @@ namespace MysteriousRing.Framework.Companions
                     location.debris.Add(
                         new Debris(damageNum, monster.getStandingPosition(), Color.Orange, 1f, monster)
                     );
-                }
+                    // 播放攻击声效
+                    Game1.playSound("swordswipe");
 
-                // 播放攻击声效
-                Game1.playSound("swordswipe");
+                    // 是否有吸血效果
+                    if (bloodsucking > 0 && owner.health < owner.maxHealth)
+                    {
+                        int healAmount = Math.Max((int)(damageNum * bloodsucking), 1);
+                        owner.health = Math.Min(owner.health + healAmount, owner.maxHealth);
+
+                        // 显示治疗效果
+                        Game1.player.currentLocation.debris.Add(new Debris(
+                            healAmount,
+                            owner.getStandingPosition(),
+                            Color.LimeGreen,
+                            1f,
+                            owner
+                        ));
+
+                        // 播放治疗音效
+                        Game1.playSound("healSound");
+                    }
+                }
             }
             else
             {
