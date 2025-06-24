@@ -15,6 +15,8 @@ namespace MysteriousRing
         public int attackRange = 120;
         // 攻速
         public double attackSpeed = 0.25;
+        // 攻击类型是否远程攻击
+        public bool attackRemote = false;
         // 攻击力
         public int attackDamage = 3;
         // 生命吸取

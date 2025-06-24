@@ -4,28 +4,29 @@ using StardewValley;
 
 namespace MysteriousRing.Framework.Companions
 {
-    public class RingServant2Factory : RingServantFactory
+    public class RingServant3Factory : RingServantFactory
     {
         public RingServant create(Farmer owner)
         {
             // 加载mod中内容贴图
             Texture2D texture = ModEntry.ModHelper.ModContent.Load<Texture2D>(
-                $"assets/servant_2.png"
+                $"assets/servant_3.png"
             );
 
             ServantConfig config = new ServantConfig()
             {
-                name = "servant_2",
+                name = "servant_3",
                 owner = owner,
                 followDistance = 100,
                 viewDistance = 500,
-                attackRange = 50,
+                attackRange = 500,
                 attackSpeed = 0.6,
-                attackDamage = 1 * owner.CombatLevel,
-                bloodsucking = 0.1F,
+                attackDamage = 2 * owner.CombatLevel,
+                attackRemote = true,
+                bloodsucking = 0,
                 moveSpend = 8,
-                idleOnHead = true,
-                enableMoveAttack = true,
+                idleOnHead = false,
+                enableMoveAttack = false,
                 animatedSprite = new AnimatedSprite(
                     textureName: "",   // 留空（因为直接使用Texture2D）
                     currentFrame: 0,   // 固定0帧
@@ -36,35 +37,32 @@ namespace MysteriousRing.Framework.Companions
                     spriteTexture = texture,
                     loop = false,
                 },
-                idleFrames = new List<FarmerSprite.AnimationFrame>
-                {
-                    new FarmerSprite.AnimationFrame(0, 100),
+                idleFrames = null,
+                attackRightFrames = new List<FarmerSprite.AnimationFrame>{
+                    new FarmerSprite.AnimationFrame(8, 100),
+                    new FarmerSprite.AnimationFrame(9, 100),
+                    new FarmerSprite.AnimationFrame(10, 100),
+                    new FarmerSprite.AnimationFrame(11, 100),
+                    new FarmerSprite.AnimationFrame(12, 100),
+                    new FarmerSprite.AnimationFrame(13, 100),
+                    new FarmerSprite.AnimationFrame(14, 100),
+                },
+                attackLeftFrames = new List<FarmerSprite.AnimationFrame>{
                     new FarmerSprite.AnimationFrame(1, 100),
                     new FarmerSprite.AnimationFrame(2, 100),
                     new FarmerSprite.AnimationFrame(3, 100),
                     new FarmerSprite.AnimationFrame(4, 100),
-                },
-                attackRightFrames = new List<FarmerSprite.AnimationFrame>{
+                    new FarmerSprite.AnimationFrame(5, 100),
+                    new FarmerSprite.AnimationFrame(6, 100),
                     new FarmerSprite.AnimationFrame(7, 100),
-                    new FarmerSprite.AnimationFrame(8, 100),
-                    new FarmerSprite.AnimationFrame(9, 100),
-                    new FarmerSprite.AnimationFrame(10, 100),
-                    new FarmerSprite.AnimationFrame(11, 100),
-                },
-                attackLeftFrames = new List<FarmerSprite.AnimationFrame>{
-                    new FarmerSprite.AnimationFrame(7, 100),
-                    new FarmerSprite.AnimationFrame(8, 100),
-                    new FarmerSprite.AnimationFrame(9, 100),
-                    new FarmerSprite.AnimationFrame(10, 100),
-                    new FarmerSprite.AnimationFrame(11, 100),
                 }
             };
-            return new RingServant2(config);
+            return new RingServant3(config);
         }
     }
 
-    public class RingServant2 : RingServant
+    public class RingServant3 : RingServant
     {
-        internal RingServant2(ServantConfig config) : base(config) { }
+        internal RingServant3(ServantConfig config) : base(config) { }
     }
 }

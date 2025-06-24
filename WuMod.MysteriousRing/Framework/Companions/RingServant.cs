@@ -39,6 +39,8 @@ namespace MysteriousRing.Framework.Companions
         protected bool enableMoveAttack;
         // 吸取生命
         protected float bloodsucking;
+        // 远程攻击
+        protected bool attackRemote;
         // 空闲
         protected List<FarmerSprite.AnimationFrame> idleFrames;
         // 右攻击动画
@@ -53,6 +55,8 @@ namespace MysteriousRing.Framework.Companions
             this.bloodsucking = config.bloodsucking;
             this.attackDamage = config.attackDamage;
             this.attackRange = config.attackRange;
+            this.attackRemote = config.attackRemote;
+            this.enableMoveAttack = config.enableMoveAttack;
             this.idleOnHead = config.idleOnHead;
             this.followDistance = config.followDistance;
             this.idleFrames = config.idleFrames;
@@ -222,6 +226,11 @@ namespace MysteriousRing.Framework.Companions
                     attackRange,
                     location
                 );
+                // 如果是远程攻击 只取一个目标
+                if (attackRemote)
+                {
+                    monsters = monsters.Take(1).ToList();
+                }
 
                 foreach (var monster in monsters)
                 {
