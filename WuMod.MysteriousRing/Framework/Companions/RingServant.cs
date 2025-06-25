@@ -240,12 +240,12 @@ namespace MysteriousRing.Framework.Companions
                     if (attackRemote)
                     {
                         // 计算火球位置
-                        Vector2 velocity = target.Position - Position;
+                        Vector2 velocity = target.Position - Position - new Vector2(0, 20f);
                         velocity.Normalize();
                         // 远程攻击弹药
                         BasicProjectile fireball = new BasicProjectile(
                             damageToFarmer: damageNum,
-                            spriteIndex: 12,
+                            spriteIndex: 6,
                             bouncesTillDestruct: 0,
                             tailLength: 3,
                             rotationVelocity: 5f,
