@@ -6,7 +6,7 @@ namespace MysteriousRing.Framework.Companions
 {
     public class RingServant2Factory : RingServantFactory
     {
-        public RingServant create(Farmer owner)
+        public NPC create(Farmer owner)
         {
             // 加载mod中内容贴图
             Texture2D texture = ModEntry.ModHelper.ModContent.Load<Texture2D>(

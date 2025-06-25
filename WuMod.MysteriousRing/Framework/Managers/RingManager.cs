@@ -14,7 +14,7 @@ namespace MysteriousRing.Framework.Managers
         };
 
         // 召唤物伙伴
-        private static RingServant? ringServant;
+        private static NPC? ringServant;
 
         // 是否装备了召唤戒指
         internal static bool IsSummoningRing(Ring ring)

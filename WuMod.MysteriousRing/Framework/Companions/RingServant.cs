@@ -8,6 +8,7 @@ using StardewValley;
 using StardewValley.Monsters;
 using StardewValley.Objects;
 using StardewValley.Pathfinding;
+using StardewValley.Projectiles;
 
 namespace MysteriousRing.Framework.Companions
 {
@@ -64,7 +65,7 @@ namespace MysteriousRing.Framework.Companions
             this.attackLeftFrames = config.attackLeftFrames;
             this.AttackCooldownTime = (int)(1000 / config.attackSpeed);
             this.speed = config.moveSpend;
-            this.Position = owner.Position + new Vector2(0, 20f);
+            this.Position = owner.Position + new Vector2(100f, 100f);
             this.addedSpeed = 0;
             this.HideShadow = true;
             this.Scale = 1;
@@ -196,7 +197,7 @@ namespace MysteriousRing.Framework.Companions
             bool canAttack = distanceToTarget <= attackRange - 20
                 && attackCooldown <= 0
                 && Sprite.CurrentAnimation == null;
-  
+
             if (canAttack)
             {
                 // 开始进入战斗模式帧动画
@@ -234,21 +235,49 @@ namespace MysteriousRing.Framework.Companions
 
                 foreach (var monster in monsters)
                 {
-                    // 应用伤害
-                    int damageNum = monster.takeDamage(
-                        attackDamage,
-                        (int)monster.Position.X,
-                        (int)monster.Position.Y,
-                        false,
-                        0,
-                        owner
-                    );
-                    // 显示伤害数字
-                    location.debris.Add(
-                        new Debris(damageNum, monster.getStandingPosition(), Color.Orange, 1f, monster)
-                    );
-                    // 播放攻击声效
-                    Game1.playSound("swordswipe");
+
+                    int damageNum = attackDamage;
+                    if (attackRemote)
+                    {
+                        // 计算火球位置
+                        Vector2 velocity = target.Position - Position;
+                        velocity.Normalize();
+                        // 远程攻击弹药
+                        BasicProjectile fireball = new BasicProjectile(
+                            damageToFarmer: damageNum,
+                            spriteIndex: 12,
+                            bouncesTillDestruct: 0,
+                            tailLength: 3,
+                            rotationVelocity: 5f,
+                            xVelocity: velocity.X * 10f,
+                            yVelocity: velocity.Y * 10f,
+                            startingPosition: Position,
+                            damagesMonsters: true, // 是否伤害怪物
+                            firingSound: "fireball", // 发射音效
+                            explode: true, // 投射物忽略物体碰撞
+                            firer: owner
+                        );
+                        Game1.currentLocation.projectiles.Add(fireball);
+                    }
+                    else
+                    {
+                        // 应用伤害
+                        damageNum = monster.takeDamage(
+                            attackDamage,
+                            (int)monster.Position.X,
+                            (int)monster.Position.Y,
+                            false,
+                            0,
+                            owner
+                        );
+                        // 显示伤害数字
+                        location.debris.Add(
+                            new Debris(damageNum, monster.getStandingPosition(), Color.Orange, 1f, monster)
+                        );
+                        // 播放攻击声效
+                        Game1.playSound("swordswipe");
+                    }
+
 
                     // 是否有吸血效果
                     if (bloodsucking > 0 && owner.health < owner.maxHealth)
