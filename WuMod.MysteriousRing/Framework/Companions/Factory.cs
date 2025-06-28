@@ -18,7 +18,8 @@ namespace MysteriousRing.Framework.Companions
             RingServantFactory[] creators = new RingServantFactory[] {
                 new RingServant1Factory(),
                 new RingServant2Factory(),
-                new RingServant3Factory()
+                new RingServant3Factory(),
+                new RingServant4Factory()
             };
             return creators[count % creators.Length].create(owner);
         }
