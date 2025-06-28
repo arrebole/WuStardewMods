@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EnableHarmony>true</EnableHarmony>
-    <GamePath>C:\Users\Jack\Desktop\Stardew Valley</GamePath>
+    <!-- <GamePath>C:\Users\Jack\Desktop\Stardew Valley</GamePath> -->
 
     <!-- 为不同配置设置不同输出目录 -->
     <OutputPath Condition="'$(Configuration)' == 'Debug'">target\Debug\</OutputPath>

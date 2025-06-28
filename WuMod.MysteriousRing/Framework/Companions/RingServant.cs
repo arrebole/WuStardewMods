@@ -103,7 +103,7 @@ namespace MysteriousRing.Framework.Companions
                 location
             );
             // 如果存在敌人 并且与主人距离小于视野距离 则进行攻击
-            if (target != null)
+            if (target != null && distanceToOwner() < followDistance * 1.5)
             {
                 updateAttack(time, target, location);
                 return;
@@ -122,13 +122,17 @@ namespace MysteriousRing.Framework.Companions
             }
         }
 
+        private float distanceToOwner()
+        {
+            return Vector2.Distance(owner.Position, Position);
+        }
+
         protected virtual Vector2 getNextIdlePosition()
         {
             Vector2 nextPosition = Position;
 
             // 计算与玩家的距离, 如果距离过远 则进行计算跟随的位置
-            float distance = Vector2.Distance(owner.Position, Position);
-            if (distance > followDistance)
+            if (distanceToOwner() > followDistance)
             {
                 // 计算方向距离
                 Vector2 direction = owner.Position - Position;
@@ -239,25 +243,31 @@ namespace MysteriousRing.Framework.Companions
                     int damageNum = attackDamage;
                     if (attackRemote)
                     {
-                        // 计算火球位置
-                        Vector2 velocity = target.Position - Position - new Vector2(0, 20f);
-                        velocity.Normalize();
-                        // 远程攻击弹药
-                        BasicProjectile fireball = new BasicProjectile(
-                            damageToFarmer: damageNum,
-                            spriteIndex: 6,
-                            bouncesTillDestruct: 0,
-                            tailLength: 3,
-                            rotationVelocity: 5f,
-                            xVelocity: velocity.X * 10f,
-                            yVelocity: velocity.Y * 10f,
-                            startingPosition: Position,
-                            damagesMonsters: true, // 是否伤害怪物
-                            firingSound: "fireball", // 发射音效
-                            explode: true, // 投射物忽略物体碰撞
-                            firer: owner
-                        );
-                        Game1.currentLocation.projectiles.Add(fireball);
+                        Game1.delayedActions.Add(new DelayedAction(500, () => // 延迟 500ms 发射
+                        {
+                            // 计算火球位置
+                            Vector2 startingPosition = Position + new Vector2(0, -Sprite.getHeight() * 3);
+                            Vector2 velocity = target.Position - startingPosition;
+                            velocity.Normalize();
+
+                            // 远程攻击弹药
+                            BasicProjectile fireball = new BasicProjectile(
+                                damageToFarmer: damageNum,
+                                spriteIndex: 10,
+                                bouncesTillDestruct: 0,
+                                tailLength: 10,
+                                rotationVelocity: 5f,
+                                xVelocity: velocity.X * 10f,
+                                yVelocity: velocity.Y * 10f,
+                                startingPosition: startingPosition,
+                                damagesMonsters: true, // 是否伤害怪物
+                                firingSound: "fireball", // 发射音效
+                                explode: true, // 投射物忽略物体碰撞
+                                firer: owner
+                            );
+                            Game1.currentLocation.projectiles.Add(fireball);
+                        }));
+
                     }
                     else
                     {
